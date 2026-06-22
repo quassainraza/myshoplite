@@ -32,10 +32,22 @@ export const useFavoritesStore = create<FavoritesState>()(
     }),
     {
       name: "favorites-storage", // unique name
-      storage: createJSONStorage(() => AsyncStorage), // (optional) by default, 'localStorage' is used
-      version: 1, // (optional) versioning for migrations
+      storage: createJSONStorage(() => AsyncStorage),
+      version: 1,
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
+      },
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as Record<string, any>;
+
+        if (version === 0) {
+          return {
+            ...state,
+            favorites: state.favorites || [],
+          };
+        }
+
+        return state;
       },
     },
   ),

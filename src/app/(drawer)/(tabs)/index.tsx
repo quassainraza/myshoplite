@@ -1,15 +1,12 @@
 // this is home page of the app, it will show the list of products
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   ActivityIndicator,
   useWindowDimensions,
-  RefreshControl,
   TextInput,
-  Platform,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/services/api";
@@ -18,12 +15,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { Product } from "@/types";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
+import { ProductList } from "@/components/ProductList";
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const { width } = useWindowDimensions();
+  const cardWidth = width >= 768 ? width / 2 - 24 : "100%"; // Responsive card width
   const numColumns = width >= 768 ? 2 : 1; // 2 columns for tablets/web, 1 for mobile
-  const hashydrated = useFavoritesStore((state) => state._hasHydrated);
+  const hasHydrated = useFavoritesStore((state) => state._hasHydrated);
   const {
     data: products,
     isLoading,
@@ -37,19 +36,22 @@ export default function HomeScreen() {
     refetchOnWindowFocus: false, // Prevents refetching when the window regains focus
     refetchOnMount: false, // Prevents refetching when the component mounts
   });
-  // 💡 Trap the log here:
-  useEffect(() => {
-    if (products) {
-      console.log(
-        `✅ Products safely loaded in background. Count: ${products.length}`,
-      );
-    }
-  }, [products]);
 
-  const renderProduct = useCallback(({ item }: { item: Product }) => {
-    if (!item) return null;
-    return <ProductCard product={item} />;
-  }, []);
+  const renderProduct = useCallback(
+    ({ item }: { item: Product }) => {
+      if (!item) return null;
+      return (
+        <View style={styles.itemWrapper}>
+          <ProductCard
+            product={item}
+            cardWidth={cardWidth}
+            key={item.id || "default-key"}
+          />
+        </View>
+      );
+    },
+    [cardWidth],
+  );
   // Filter products based on search query
   const filteredProducts = useMemo(() => {
     if (!products) return [];
@@ -58,7 +60,7 @@ export default function HomeScreen() {
     );
   }, [products, searchQuery]);
 
-  if (!hashydrated) {
+  if (!hasHydrated) {
     return null;
   }
   if (isLoading) {
@@ -95,40 +97,25 @@ export default function HomeScreen() {
           style={styles.searchInput}
           placeholder="Search products..."
           value={searchQuery}
+          placeholderTextColor="#8E8E93"
           onChangeText={setSearchQuery}
           clearButtonMode="while-editing" // Adds an 'x' button on iOS
           accessibilityLabel="Search products input"
         />
       </View>
 
-      {/* Product List */}
-      <FlatList
-        key={`grid-${numColumns}`}
+      <ProductList
         data={filteredProducts}
-        keyExtractor={(item) => item.id}
         numColumns={numColumns}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
+        isRefetching={isRefetching}
+        onRefresh={refetch}
+        emptyMessage="No products match your search."
         renderItem={renderProduct}
-        initialNumToRender={5}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        removeClippedSubviews={Platform.OS === "android"} // Only for Android
-        keyboardDismissMode="on-drag"
-        keyboardShouldPersistTaps="handled"
-        // Empty State
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="search-outline" size={48} color={Colors.text} />
-            <Text style={styles.emptyText}>No products match your search.</Text>
+          <View style={styles.centerContainer}>
+            <Ionicons name="search-outline" size={48} color="gray" />
+            <Text>No products match your search.</Text>
           </View>
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            tintColor={Colors.primary}
-          />
         }
       />
     </View>
@@ -138,6 +125,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background, // Standard iOS background from PDF
+  },
+  itemWrapper: {
+    padding: 8, // This acts as the "gutter" between items
+    width: "100%", // Ensures two columns fit
   },
   centerContainer: {
     flex: 1,
@@ -166,11 +157,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     height: "100%",
+    color: Colors.text,
   },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
+
   columnWrapper: {
     justifyContent: "space-between",
   },
@@ -190,15 +179,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.primary,
     textDecorationLine: "underline",
-  },
-  emptyContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 60,
-  },
-  emptyText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: Colors.text,
   },
 });

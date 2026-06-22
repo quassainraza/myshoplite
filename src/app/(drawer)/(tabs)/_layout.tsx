@@ -1,12 +1,18 @@
 // app/(tabs)/_layout.tsx
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import CartButton from "@/components/CartButton";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerRight: () => <CartButton />, // Add Cart button to the header
         headerShown: true,
+        tabBarStyle: {
+          height: 60,
+          paddingBottom: 8,
+        },
       }}
     >
       <Tabs.Screen
