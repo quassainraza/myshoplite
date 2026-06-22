@@ -80,6 +80,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
             <Text style={styles.price}>${product.price.toFixed(2)}</Text>
 
             <TouchableOpacity
+              testID="add-to-cart-btn"
               style={styles.cartBtn}
               onPress={(e) => {
                 e.preventDefault();

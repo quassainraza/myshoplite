@@ -6,6 +6,10 @@ module.exports = defineConfig([
   expoConfig,
   {
     ignores: ["dist/*"],
+    env: {
+      "jest/globals": true,
+    },
+    plugins: ["jest"],
     settings: {
       "import/resolver": {
         typescript: {
