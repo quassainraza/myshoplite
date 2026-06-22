@@ -103,8 +103,8 @@ The codebase utilizes **Jest** and **React Native Testing Library** to validate 
 #### Mobile Layouts (Android vs. iOS)
 
 <p align="center">
-  <img src="./assets/ss/android-list-view.png" width="48%" alt="List Screen - Android">
-  <img src="./assets/ss/ios-view-list.png" width="48%" alt="List Screen - iOS">
+  <img src="./src/assets/ss/android-list-view.png" width="48%" alt="List Screen - Android">
+  <img src="./src/assets/ss/ios-view-list.png" width="48%" alt="List Screen - iOS">
 </p>
 
 ---
