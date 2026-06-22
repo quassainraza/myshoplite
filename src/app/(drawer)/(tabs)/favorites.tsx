@@ -1,13 +1,6 @@
 // app/(tabs)/favorites.tsx
 import { useCallback, useMemo } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  useWindowDimensions,
-  Platform,
-} from "react-native";
+import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/services/api";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
@@ -16,10 +9,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Product } from "@/types";
+import { ProductList } from "@/components/ProductList";
 
 export default function FavoritesScreen() {
   const { width } = useWindowDimensions();
   const numColumns = width >= 768 ? 2 : 1;
+  const cardWidth = width >= 768 ? width / 2 - 24 : "100%"; // Responsive card width
 
   // 1. Get the list of favorited IDs from Zustand
   // Because Zustand is reactive, this screen will update instantly
@@ -39,29 +34,25 @@ export default function FavoritesScreen() {
     return allProducts.filter((product) => favoriteIds.includes(product.id));
   }, [allProducts, favoriteIds]);
 
-  const renderProduct = useCallback(({ item }: { item: Product }) => {
-    return <ProductCard product={item} />;
-  }, []);
+  const renderProduct = useCallback(
+    ({ item }: { item: Product }) => {
+      return <ProductCard product={item} cardWidth={cardWidth} />;
+    },
+    [cardWidth],
+  );
 
   if (!hasHydrated) {
     return null;
   }
   return (
     <View style={styles.container}>
-      <FlatList
+      <ProductList
         key={`grid-${numColumns}`}
         data={favoriteProducts}
-        keyExtractor={(item) => item.id}
         numColumns={numColumns}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
         renderItem={renderProduct}
         // 💡 5. Brought over FlatList performance props
-        initialNumToRender={6}
-        maxToRenderPerBatch={10}
-        windowSize={5}
-        removeClippedSubviews={Platform.OS === "android"}
-        // Empty State when no favorites exist
+
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="heart-dislike-outline" size={64} color="#8E8E93" />

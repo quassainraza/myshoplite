@@ -1,11 +1,11 @@
 //this component is responsible for rendering the product card in the product list screen
-import React from "react";
+import React, { memo } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  useWindowDimensions,
+  DimensionValue,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Product } from "@/types";
@@ -13,24 +13,22 @@ import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { Link } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Image } from "expo-image";
+import { useCartStore } from "@/store/useCart";
 
 interface ProductCardProps {
   product: Product;
+  cardWidth?: DimensionValue;
 }
 
-const ProductCardComponent: React.FC<ProductCardProps> = ({ product }) => {
-  const { width } = useWindowDimensions();
-  // Responsive check: if width >= 768px (Tablet/Web), use half screen width minus padding..
-  const isLargeScreen = width >= 768;
-  const cardWidth = isLargeScreen ? width / 2 - 24 : "100%";
+const ProductCardComponent: React.FC<ProductCardProps> = ({
+  product,
+  cardWidth,
+}) => {
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
   const isFavorite = useFavoritesStore((state) => state.isFavorite(product.id));
 
-  console.log(
-    `Rendering ProductCard for ${product.name} (ID: ${product.id}) - Favorite: ${isFavorite}`,
-  ); // Debugging line
+  const addToCart = useCartStore((state) => state.addToCart);
 
-  // Debugging line
   return (
     <Link
       href={{
@@ -40,21 +38,27 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({ product }) => {
       asChild
     >
       <TouchableOpacity
-        style={StyleSheet.flatten([styles.card, { width: cardWidth }])}
+        style={StyleSheet.flatten([
+          styles.card,
+          { width: cardWidth || "100%" },
+        ])}
         activeOpacity={0.8}
       >
-        {/* Product Image */}
         <Image
           source={{ uri: product.image }}
           style={styles.image}
-          resizeMode="cover"
+          contentFit="cover"
           accessibilityLabel={`Image of ${product.name}`}
         />
 
         {/* Favorite Toggle Button */}
         <TouchableOpacity
           style={styles.favoriteBtn}
-          onPress={() => toggleFavorite(product.id)}
+          onPress={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleFavorite(product.id);
+          }}
           accessibilityLabel={
             isFavorite ? "Remove from favorites" : "Add to favorites"
           }
@@ -72,7 +76,20 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({ product }) => {
           <Text style={styles.name} numberOfLines={2}>
             {product.name}
           </Text>
-          <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+          <View style={styles.bottomRow}>
+            <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+
+            <TouchableOpacity
+              style={styles.cartBtn}
+              onPress={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart(product);
+              }}
+            >
+              <Ionicons name="cart-outline" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
     </Link>
@@ -121,9 +138,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.primary, // iOS Blue from design guidelines
   },
+  bottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  cartBtn: {
+    backgroundColor: Colors.primary,
+    borderRadius: 20,
+    padding: 8,
+  },
 });
 // 💡 FIX: Deep comparison rule to optimize for state tracking
-export const ProductCard = React.memo(
+export const ProductCard = memo(
   ProductCardComponent,
   (prevProps, nextProps) => {
     return (

@@ -49,7 +49,7 @@ export const sampleProducts: Product[] = [
       "Bring the cafe to your kitchen with this 15-bar pressure espresso maker featuring a built-in milk frother.",
     price: 450.0,
     image:
-      "https://images.unsplash.com/photo-1510279815049-3db64d508e31?w=800&q=80",
+      "https://image.made-in-china.com/202f0j00GrwetzIhHbqB/Commercial-Italian-Barista-Professional-Semi-Automatic-Espresso-Coffee-Machines-for-Sale.webp",
     category: "Home & Kitchen",
   },
   {
@@ -138,8 +138,7 @@ export const sampleProducts: Product[] = [
     description:
       "Fast-charging 15W Qi wireless charger compatible with all leading smartphone brands.",
     price: 24.0,
-    image:
-      "https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?w=800&q=80",
+    image: "https://images.mobilefun.co.uk/graphics/450pixelp/94937.jpg",
     category: "Electronics",
   },
   {
@@ -169,7 +168,7 @@ export const sampleProducts: Product[] = [
       "Space-saving dumbbell set that adjusts from 5 to 52.5 lbs with a simple dial mechanism.",
     price: 199.0,
     image:
-      "https://images.unsplash.com/photo-1586401700636-407b1406e574?w=800&q=80",
+      "https://hips.hearstapps.com/hmg-prod/images/bowflex-schlinger-6786dbe18ccd4.png?crop=1.00xw:0.959xh;0,0.0163xh",
     category: "Sports & Fitness",
   },
   {
@@ -199,7 +198,7 @@ export const sampleProducts: Product[] = [
       "Memory foam neck pillow with a washable velour cover and a compact travel bag.",
     price: 22.0,
     image:
-      "https://images.unsplash.com/photo-1585218356057-dc0e8d355888?w=800&q=80",
+      "https://www.companion.com.pk/cdn/shop/files/3219110249095_1.jpg?v=1754990243",
     category: "Accessories",
   },
 ];
